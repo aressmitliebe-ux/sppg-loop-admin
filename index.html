@@ -1,0 +1,715 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPPG LOOP | Admin Pusat</title>
+
+<style>
+:root {
+  --cream:#FFF9E9;
+  --forest:#234B20;
+  --green:#397B35;
+  --light:#E8F1DB;
+  --gray:#71806E;
+  --border:#E5EBDD;
+}
+* {box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body {background:var(--cream);color:#263626}
+.layout {display:flex;min-height:100vh}
+.sidebar {
+  width:245px;background:var(--forest);color:white;padding:27px 17px;
+  display:flex;flex-direction:column;flex-shrink:0
+}
+.logo {font-size:27px;font-weight:bold;margin:12px 10px 5px}
+.tagline {color:#DCEBD2;font-size:12px;line-height:1.5;margin:0 10px 35px}
+.nav-label {font-size:10px;color:#BBD1B2;letter-spacing:1.5px;margin:12px}
+.nav-item {
+  display:block;padding:14px;border-radius:11px;color:white;
+  text-decoration:none;font-size:14px;margin-bottom:7px;cursor:pointer
+}
+.nav-item:hover,.nav-item.active {background:#568B46}
+.sidebar-bottom {margin-top:auto;padding:15px 8px;color:#DCEBD2;font-size:11px}
+.main {flex:1;min-width:0;padding:30px}
+.topbar {display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:26px}
+.topbar h1 {color:var(--forest);font-size:26px}
+.topbar p {color:var(--gray);font-size:13px;margin-top:7px}
+.admin-label {background:var(--forest);color:white;padding:12px 17px;border-radius:30px;font-size:12px}
+.notice {padding:13px 15px;border-radius:10px;font-size:12px;line-height:1.6;margin-bottom:20px}
+.notice.warning {background:#FFF3D9;border:1px solid #EBD5A6;color:#805B1B}
+.notice.success {background:#E5F3DF;border:1px solid #B9D69D;color:#28521D}
+.notice.error {background:#FCE8E6;border:1px solid #E8B7B2;color:#8B3028}
+.page {display:none}
+.page.active {display:block}
+.stats {display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+.stat-card,.card,.table-card {
+  background:white;border-radius:17px;padding:21px;
+  box-shadow:0 3px 12px #263d1810
+}
+.stat-icon {font-size:25px}
+.stat-card h2 {color:var(--forest);font-size:25px;margin:12px 0 5px}
+.stat-card p,.muted {color:var(--gray);font-size:12px}
+.grid-two {display:grid;grid-template-columns:1.7fr 1fr;gap:19px;margin-bottom:21px}
+.card h3,.table-card h3 {color:var(--forest);font-size:16px;margin-bottom:17px}
+.legend {display:flex;gap:17px;font-size:11px;color:var(--gray);margin-bottom:20px}
+.dot {display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+.dot-edible {background:#8BC34A}
+.dot-inedible {background:#234B20}
+.chart {
+  height:245px;display:flex;align-items:end;justify-content:space-around;
+  gap:12px;border-bottom:1px solid var(--border);padding:0 8px;
+  overflow:visible;position:relative;
+  background:repeating-linear-gradient(to top,transparent 0,transparent 47px,#E9EFE5 48px,transparent 49px)
+}
+.chart-column {
+  height:100%;display:flex;flex:1;min-width:0;align-items:center;
+  justify-content:end;flex-direction:column;position:relative
+}
+.bars {height:195px;display:flex;align-items:end;gap:7px}
+.bar {width:26px;border-radius:8px 8px 2px 2px;position:relative;cursor:help}
+.bar.edible {
+  background:linear-gradient(to top,#79AD35,#A8D86C);
+  --tip-bg:#E5F3D7;--tip-color:#28521D
+}
+.bar.inedible {
+  background:linear-gradient(to top,#173A18,#397B35);
+  --tip-bg:#234B20;--tip-color:white
+}
+.bar::after {
+  content:attr(data-tooltip);position:absolute;bottom:calc(100% + 10px);
+  left:50%;transform:translateX(-50%);background:var(--tip-bg);
+  color:var(--tip-color);padding:8px 10px;border-radius:8px;
+  font-size:11px;font-weight:bold;white-space:nowrap;
+  opacity:0;visibility:hidden;z-index:10
+}
+.bar:hover::after {opacity:1;visibility:visible}
+.chart-column small {margin:10px 0;font-size:10px;color:var(--gray);text-align:center}
+.alert-card {background:#FFF8E9;border:1px solid #F0D5A8;border-radius:14px;padding:17px}
+.alert-card h2 {font-size:18px;color:var(--forest);margin:10px 0}
+.alert-card p {font-size:12px;color:var(--gray);line-height:1.6}
+.alert-number {font-size:30px;font-weight:bold;color:var(--forest);margin:10px 0}
+.alert-label,.source {display:inline-block;border-radius:20px;padding:6px 10px;font-size:10px;font-weight:bold}
+.alert-label {background:#FCEBCB;color:#94600D}
+.source.asli {color:#286B2B;background:#E2F3DF}
+.source.simulasi {color:#2364A1;background:#E2EFFB}
+.source.waiting {color:#805B1B;background:#FFF3D9}
+.table-card {margin-bottom:20px}
+.table-heading {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px}
+input,select {
+  padding:10px 12px;border:1px solid #D8E2D0;border-radius:9px;
+  background:white;outline:none;font-size:13px
+}
+input:focus,select:focus {border-color:var(--green)}
+.search {max-width:230px;width:100%}
+.table-wrap {overflow-x:auto}
+table {width:100%;min-width:570px;border-collapse:collapse}
+th {background:#EDF3E6;color:var(--forest);text-align:left;padding:14px;font-size:12px}
+td {padding:14px;border-bottom:1px solid #E9EEE5;font-size:12px}
+button {cursor:pointer}
+.btn {border:0;border-radius:8px;padding:9px 13px;background:var(--forest);color:white;font-size:12px}
+.btn:hover {background:var(--green)}
+.btn-light {background:var(--light);color:var(--forest)}
+.school-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+.school-card {background:white;border:1px solid var(--border);border-radius:15px;padding:19px}
+.school-card h3 {color:var(--forest);margin-bottom:8px}
+.school-card p {color:var(--gray);font-size:12px;margin-bottom:10px}
+.school-total {font-size:23px;font-weight:bold;color:var(--forest);margin:12px 0}
+.detail-stats {display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0}
+.detail-stat {background:white;border-radius:14px;padding:20px}
+.detail-stat p {font-size:12px;color:var(--gray)}
+.detail-stat h2 {font-size:24px;color:var(--forest);margin-top:10px}
+.form-group {display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+.form-group label {color:var(--forest);font-weight:bold;font-size:13px}
+.form-group input,.form-group select {max-width:420px;width:100%}
+.report-summary {display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0}
+.report-summary h2 {color:var(--forest);font-size:23px;margin-top:10px}
+.login-screen {
+  position:fixed;inset:0;background:#172C18E8;z-index:100;
+  display:flex;align-items:center;justify-content:center;padding:20px
+}
+.login-card {background:white;padding:30px;border-radius:18px;width:100%;max-width:390px}
+.login-card h2 {color:var(--forest);margin-bottom:8px}
+.login-card p {font-size:13px;color:var(--gray);line-height:1.5;margin-bottom:20px}
+.login-card input {width:100%;margin-bottom:12px}
+.login-card button {width:100%;padding:12px}
+#loginMessage {font-size:12px;color:#A33;margin-top:12px;line-height:1.5}
+@media(max-width:1000px) {
+  .stats {grid-template-columns:repeat(2,1fr)}
+  .grid-two {grid-template-columns:1fr}
+}
+@media(max-width:650px) {
+  .sidebar {width:70px;padding:18px 7px}
+  .logo {font-size:13px;margin:10px 0 25px}
+  .tagline,.nav-label,.nav-item span,.sidebar-bottom {display:none}
+  .nav-item {text-align:center;padding:13px 4px}
+  .main {padding:17px 12px}
+  .topbar h1 {font-size:20px}
+  .admin-label {font-size:10px;padding:9px}
+  .stats {gap:9px}
+  .stat-card {padding:13px}
+  .stat-card h2 {font-size:19px}
+  .school-grid,.detail-stats,.report-summary {grid-template-columns:1fr}
+  .chart {gap:5px;padding:0 2px}
+  .bar {width:17px}
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <h2>🌿 SPPG LOOP</h2>
+    <p>Login Admin Pusat menggunakan akun Firebase Authentication.</p>
+    <input id="loginEmail" type="email" placeholder="Email Admin">
+    <input id="loginPassword" type="password" placeholder="Password">
+    <button class="btn" id="loginButton" onclick="loginAdmin()">Login</button>
+    <div id="loginMessage"></div>
+  </div>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="logo">🌿 SPPG<br>LOOP</div>
+  <div class="tagline">Reduce Food Waste,<br>Build a Greener Future</div>
+  <div class="nav-label">MENU UTAMA</div>
+  <a class="nav-item active" onclick="navigate('dashboard',this)">🏠 <span>Dashboard</span></a>
+  <a class="nav-item" onclick="navigate('schools',this)">🏫 <span>Detail Sekolah</span></a>
+  <a class="nav-item" onclick="navigate('reports',this)">📄 <span>Laporan</span></a>
+  <div class="nav-label">PREFERENSI</div>
+  <a class="nav-item" onclick="navigate('settings',this)">⚙️ <span>Pengaturan</span></a>
+  <a class="nav-item" onclick="logoutAdmin()">↪️ <span>Logout</span></a>
+  <div class="sidebar-bottom">Together for a Greener Future 🌱</div>
+</aside>
+
+<main class="main">
+  <div id="connectionNotice" class="notice warning">
+    Menunggu login dan koneksi Firebase...
+  </div>
+
+  <section class="page active" id="dashboard">
+    <div class="topbar">
+      <div><h1>Dashboard Admin Pusat</h1><p>Monitoring limbah makanan seluruh sekolah</p></div>
+      <div class="admin-label">👤 Admin Pusat</div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card"><div class="stat-icon">🏫</div><h2 id="totalSchools">5</h2><p>Total Sekolah</p></div>
+      <div class="stat-card"><div class="stat-icon">🗑️</div><h2 id="totalWaste">0 g</h2><p>Total Limbah Hari Ini</p></div>
+      <div class="stat-card"><div class="stat-icon">🌿</div><h2 id="totalEdible">0 g</h2><p>Edible Hari Ini</p></div>
+      <div class="stat-card"><div class="stat-icon">♻️</div><h2 id="totalInedible">0 g</h2><p>Inedible Hari Ini</p></div>
+    </div>
+
+    <div class="grid-two">
+      <div class="card">
+        <h3>📊 Perbandingan Limbah Antar Sekolah</h3>
+        <div class="legend"><span><i class="dot dot-edible"></i>Edible</span><span><i class="dot dot-inedible"></i>Inedible</span></div>
+        <div class="chart" id="mainChart"></div>
+      </div>
+      <div class="card">
+        <h3>⚠️ Catatan Limbah Terbesar</h3>
+        <div id="largestWaste"></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-heading">
+        <h3>Data Seluruh Sekolah</h3>
+        <input class="search" id="dashboardSearch" placeholder="Cari sekolah..." oninput="renderDashboardTable()">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nama Sekolah</th><th>Edible</th><th>Inedible</th><th>Total</th><th>Sumber</th><th>Detail</th></tr></thead>
+          <tbody id="dashboardTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="schools">
+    <div class="topbar"><div><h1>Detail Sekolah</h1><p>Pilih sekolah untuk melihat riwayatnya.</p></div></div>
+    <input class="search" id="schoolSearch" placeholder="Cari nama sekolah..." oninput="renderSchoolCards()">
+    <div class="school-grid" id="schoolCards" style="margin-top:18px"></div>
+  </section>
+
+  <section class="page" id="schoolDetail">
+    <button class="btn btn-light" onclick="navigate('schools')">← Kembali</button>
+    <div class="topbar" style="margin-top:22px">
+      <div><h1 id="detailName">Detail Sekolah</h1><p>Informasi dan riwayat pencatatan.</p></div>
+      <div id="detailBadge"></div>
+    </div>
+    <div class="detail-stats">
+      <div class="detail-stat"><p>Total Hari Ini</p><h2 id="detailTotal">0 g</h2></div>
+      <div class="detail-stat"><p>Edible Hari Ini</p><h2 id="detailEdible">0 g</h2></div>
+      <div class="detail-stat"><p>Inedible Hari Ini</p><h2 id="detailInedible">0 g</h2></div>
+    </div>
+    <div class="grid-two">
+      <div class="card">
+        <h3>Grafik 7 Hari Terakhir</h3>
+        <div class="legend"><span><i class="dot dot-edible"></i>Edible</span><span><i class="dot dot-inedible"></i>Inedible</span></div>
+        <div class="chart" id="detailChart"></div>
+      </div>
+      <div class="card"><h3>Informasi Pencatatan</h3><div id="detailInfo"></div></div>
+    </div>
+    <div class="table-card">
+      <h3>Riwayat Pencatatan</h3>
+      <div class="table-wrap">
+        <table><thead><tr><th>Tanggal</th><th>Waktu</th><th>Edible</th><th>Inedible</th><th>Total</th></tr></thead>
+        <tbody id="detailHistory"></tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="reports">
+    <div class="topbar"><div><h1>Laporan Limbah</h1><p>Rekapitulasi berdasarkan riwayat pencatatan.</p></div></div>
+    <div class="card">
+      <h3>Filter Laporan</h3>
+      <div class="form-group"><label>Periode</label>
+        <select id="reportPeriod" onchange="renderReport()">
+          <option value="today">Hari ini</option><option value="week">Minggu ini</option><option value="month">Bulan ini</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Sekolah</label><select id="reportSchool" onchange="renderReport()"></select></div>
+    </div>
+    <div class="report-summary">
+      <div class="card"><p>Total Edible</p><h2 id="reportEdible">0 g</h2></div>
+      <div class="card"><p>Total Inedible</p><h2 id="reportInedible">0 g</h2></div>
+      <div class="card"><p>Total Limbah</p><h2 id="reportTotal">0 g</h2></div>
+    </div>
+    <div class="table-card">
+      <div class="table-heading"><h3>Rekap Sekolah</h3><button class="btn" onclick="exportReport()">⬇ Export CSV</button></div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Sekolah</th><th>Edible</th><th>Inedible</th><th>Total</th><th>Sumber</th></tr></thead>
+        <tbody id="reportTable"></tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="settings">
+    <div class="topbar"><div><h1>Pengaturan</h1><p>Informasi sistem dashboard SPPG LOOP.</p></div></div>
+    <div class="card">
+      <h3>Informasi Sistem</h3>
+      <p class="muted" style="line-height:2">
+        Nama sistem: SPPG LOOP<br>
+        Jenis dashboard: Admin Pusat<br>
+        Pilot data asli: SMA Trinitas<br>
+        Sekolah simulasi: 4 sekolah<br>
+        Satuan berat: Gram (g)<br>
+        Database: Firebase Realtime Database
+      </p>
+    </div>
+    <div class="card" style="margin-top:20px">
+      <h3>Status Integrasi</h3><p id="settingsStatus" class="muted">Menunggu koneksi Firebase.</p>
+    </div>
+  </section>
+</main>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
+import {
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
+import {
+  getDatabase, ref, onValue
+} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDOr7Ra3-hAniYo1u19kmIH4i64I2NpDJQ",
+  authDomain: "sppg-loop.firebaseapp.com",
+  databaseURL: "https://sppg-loop-default-rtdb.firebaseio.com",
+  projectId: "sppg-loop",
+  storageBucket: "sppg-loop.firebasestorage.app",
+  messagingSenderId: "ISI_MESSAGING_SENDER_ID",
+  appId: "ISI_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+const todayKey = dateKey(new Date());
+
+function dateKey(d) {
+  const day=String(d.getDate()).padStart(2,"0");
+  const month=String(d.getMonth()+1).padStart(2,"0");
+  return `${day}-${month}-${d.getFullYear()}`;
+}
+
+function parseFirebaseDate(value) {
+  if(!value) return null;
+  const parts=String(value).split("-");
+  if(parts.length!==3) return null;
+  const d=new Date(Number(parts[2]),Number(parts[1])-1,Number(parts[0]));
+  return Number.isNaN(d.getTime())?null:d;
+}
+
+function formatDate(d) {
+  return d.toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});
+}
+
+function sameDay(a,b) {
+  return a.getFullYear()===b.getFullYear() &&
+    a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+}
+
+function startOfWeek(d) {
+  const x=new Date(d);
+  x.setHours(0,0,0,0);
+  const day=(x.getDay()+6)%7;
+  x.setDate(x.getDate()-day);
+  return x;
+}
+
+function inPeriod(date,period) {
+  if(!date) return false;
+  const now=new Date();
+  if(period==="today") return sameDay(date,now);
+  if(period==="week") return date>=startOfWeek(now) && date<=now;
+  return date.getMonth()===now.getMonth() && date.getFullYear()===now.getFullYear();
+}
+
+function sumRows(rows) {
+  return rows.reduce((a,r)=>({
+    edible:a.edible+Number(r.edible||0),
+    inedible:a.inedible+Number(r.inedible||0),
+    total:a.total+Number(r.total ?? (Number(r.edible||0)+Number(r.inedible||0)))
+  }),{edible:0,inedible:0,total:0});
+}
+
+function makeDateOffset(daysAgo) {
+  const d=new Date();
+  d.setDate(d.getDate()-daysAgo);
+  return dateKey(d);
+}
+
+/* Sekolah simulasi: nilai ditulis dalam gram */
+const demoSchools = [
+  {name:"SMA Nusantara",source:"SIMULASI",history:[
+    {date:makeDateOffset(0),time:"12:00",edible:16000,inedible:9000},
+    {date:makeDateOffset(1),time:"12:00",edible:14000,inedible:8000},
+    {date:makeDateOffset(2),time:"12:00",edible:13000,inedible:8000},
+    {date:makeDateOffset(3),time:"12:00",edible:15000,inedible:7000},
+    {date:makeDateOffset(4),time:"12:00",edible:12000,inedible:8000},
+    {date:makeDateOffset(5),time:"12:00",edible:14000,inedible:9000},
+    {date:makeDateOffset(6),time:"12:00",edible:15000,inedible:8000}
+  ]},
+  {name:"SMA Harapan",source:"SIMULASI",history:[
+    {date:makeDateOffset(0),time:"12:00",edible:14000,inedible:8000},
+    {date:makeDateOffset(1),time:"12:00",edible:12000,inedible:7000},
+    {date:makeDateOffset(2),time:"12:00",edible:13000,inedible:7000}
+  ]},
+  {name:"SMA Mandiri",source:"SIMULASI",history:[
+    {date:makeDateOffset(0),time:"12:00",edible:18000,inedible:11000},
+    {date:makeDateOffset(1),time:"12:00",edible:16000,inedible:9000},
+    {date:makeDateOffset(2),time:"12:00",edible:15000,inedible:9000}
+  ]},
+  {name:"SMA Cendekia",source:"SIMULASI",history:[
+    {date:makeDateOffset(0),time:"12:00",edible:13000,inedible:7000},
+    {date:makeDateOffset(1),time:"12:00",edible:12000,inedible:7000},
+    {date:makeDateOffset(2),time:"12:00",edible:11000,inedible:6000}
+  ]}
+];
+
+const realSchool = {
+  name:"SMA Trinitas",
+  source:"MENUNGGU",
+  history:[]
+};
+
+let schools=[realSchool,...demoSchools];
+let selectedSchoolIndex=0;
+let firebaseUnsubscribe=null;
+let firebaseLoaded=false;
+
+function total(s) {
+  return sumRows(s.history.filter(r=>inPeriod(parseFirebaseDate(r.date),"today"))).total;
+}
+function todaySummary(s) {
+  return sumRows(s.history.filter(r=>inPeriod(parseFirebaseDate(r.date),"today")));
+}
+function sourceHTML(s) {
+  if(s.source==="ASLI") return '<span class="source asli">DATA FIREBASE</span>';
+  if(s.source==="SIMULASI") return '<span class="source simulasi">SIMULASI</span>';
+  return '<span class="source waiting">MENUNGGU DATA</span>';
+}
+function grams(n) {
+  return `${Math.round(Number(n)||0).toLocaleString("id-ID")} g`;
+}
+function notice(message,type="warning") {
+  const el=document.getElementById("connectionNotice");
+  el.className="notice "+type;
+  el.textContent=message;
+}
+function showLogin(show) {
+  document.getElementById("loginScreen").style.display=show?"flex":"none";
+}
+function setLoginMessage(message) {
+  document.getElementById("loginMessage").textContent=message;
+}
+
+/* LOGIN FIREBASE */
+window.loginAdmin=async function() {
+  const email=document.getElementById("loginEmail").value.trim();
+  const password=document.getElementById("loginPassword").value;
+  if(!email||!password) {
+    setLoginMessage("Masukkan email dan password akun Firebase.");
+    return;
+  }
+  const button=document.getElementById("loginButton");
+  button.disabled=true;
+  button.textContent="Memproses...";
+  try {
+    await signInWithEmailAndPassword(auth,email,password);
+    setLoginMessage("");
+  } catch(error) {
+    setLoginMessage("Login gagal. Periksa email, password, dan pengaturan Authentication.");
+  } finally {
+    button.disabled=false;
+    button.textContent="Login";
+  }
+};
+
+window.logoutAdmin=async function() {
+  if(confirm("Keluar dari Admin Pusat?")) {
+    if(firebaseUnsubscribe) firebaseUnsubscribe();
+    await signOut(auth);
+  }
+};
+
+onAuthStateChanged(auth,user=>{
+  if(user) {
+    showLogin(false);
+    notice("Login berhasil. Menghubungkan ke Firebase Realtime Database...");
+    document.getElementById("settingsStatus").textContent="Login Firebase berhasil.";
+    listenFirebase();
+  } else {
+    showLogin(true);
+    if(firebaseUnsubscribe) firebaseUnsubscribe();
+    firebaseLoaded=false;
+    realSchool.source="MENUNGGU";
+    realSchool.history=[];
+    renderAll();
+    notice("Silakan login untuk melihat data SMA Trinitas dari Firebase.");
+  }
+});
+
+/* MEMBACA /history */
+function listenFirebase() {
+  if(firebaseUnsubscribe) firebaseUnsubscribe();
+
+  const historyRef=ref(db,"history");
+  firebaseUnsubscribe=onValue(historyRef,snapshot=>{
+    const raw=snapshot.val()||{};
+    realSchool.history=Object.entries(raw).map(([id,row])=>({
+      id,
+      date:String(row.date||""),
+      time:String(row.time||""),
+      edible:Number(row.edible||0),
+      inedible:Number(row.inedible||0),
+      total:Number(row.total ?? (Number(row.edible||0)+Number(row.inedible||0)))
+    })).filter(row=>row.date);
+
+    realSchool.history.sort((a,b)=>{
+      const da=parseFirebaseDate(a.date);
+      const dbb=parseFirebaseDate(b.date);
+      return (dbb?.getTime()||0)-(da?.getTime()||0) ||
+        String(b.time).localeCompare(String(a.time));
+    });
+
+    realSchool.source="ASLI";
+    firebaseLoaded=true;
+    notice(`Terhubung ke Firebase. ${realSchool.history.length} catatan SMA Trinitas berhasil dibaca.`, "success");
+    document.getElementById("settingsStatus").textContent=
+      `Terhubung. ${realSchool.history.length} catatan ditemukan di /history.`;
+    renderAll();
+  },error=>{
+    realSchool.source="MENUNGGU";
+    firebaseLoaded=false;
+    notice("Gagal membaca Firebase. Periksa koneksi dan Database Rules akun Admin.", "error");
+    document.getElementById("settingsStatus").textContent="Gagal membaca database: "+error.message;
+    renderAll();
+  });
+}
+
+/* NAVIGASI */
+window.navigate=function(page,element) {
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(page).classList.add("active");
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+  if(element) element.classList.add("active");
+  if(page==="dashboard") renderDashboard();
+  if(page==="schools") renderSchoolCards();
+  if(page==="reports") renderReport();
+  window.scrollTo(0,0);
+};
+
+function createBars(edible,inedible,max) {
+  const eh=edible/max*180;
+  const ih=inedible/max*180;
+  return `<div class="bars">
+    <div class="bar edible" style="height:${eh}px" data-tooltip="Edible: ${grams(edible)}"></div>
+    <div class="bar inedible" style="height:${ih}px" data-tooltip="Inedible: ${grams(inedible)}"></div>
+  </div>`;
+}
+
+function renderDashboard() {
+  const summaries=schools.map(todaySummary);
+  const e=summaries.reduce((a,x)=>a+x.edible,0);
+  const i=summaries.reduce((a,x)=>a+x.inedible,0);
+  document.getElementById("totalSchools").textContent=schools.length;
+  document.getElementById("totalEdible").textContent=grams(e);
+  document.getElementById("totalInedible").textContent=grams(i);
+  document.getElementById("totalWaste").textContent=grams(e+i);
+  renderDashboardChart();
+  renderLargestWaste();
+  renderDashboardTable();
+}
+
+function renderDashboardChart() {
+  const values=schools.map(todaySummary);
+  const max=Math.max(1,...values.map(x=>x.edible+x.inedible));
+  document.getElementById("mainChart").innerHTML=schools.map((s,index)=>`
+    <div class="chart-column">
+      ${createBars(values[index].edible,values[index].inedible,max)}
+      <small>${s.name.replace("SMA ","")}</small>
+    </div>`).join("");
+}
+
+function renderLargestWaste() {
+  const candidates=schools.filter(s=>s.source!=="MENUNGGU");
+  const largest=candidates.reduce((a,b)=>total(a)>=total(b)?a:b,null);
+  const el=document.getElementById("largestWaste");
+  if(!largest||total(largest)===0) {
+    el.innerHTML='<p class="muted">Belum ada catatan untuk hari ini.</p>';
+    return;
+  }
+  const sum=todaySummary(largest);
+  el.innerHTML=`<div class="alert-card">
+    <span class="alert-label">PERLU DITINJAU</span>
+    <h2>${largest.name}</h2>
+    <div class="alert-number">${grams(sum.total)}</div>
+    <p>Edible: ${grams(sum.edible)}<br>Inedible: ${grams(sum.inedible)}</p>
+    <p style="margin-top:12px">Jumlah limbah tercatat terbesar hari ini dibandingkan sekolah lain.</p>
+    <button class="btn" style="margin-top:15px" onclick="openDetail(${schools.indexOf(largest)})">Lihat Detail</button>
+  </div>`;
+}
+
+window.renderDashboardTable=function() {
+  const keyword=(document.getElementById("dashboardSearch").value||"").toLowerCase();
+  const filtered=schools.filter(s=>s.name.toLowerCase().includes(keyword));
+  document.getElementById("dashboardTable").innerHTML=filtered.map(s=>{
+    const x=todaySummary(s);
+    return `<tr><td><strong>${s.name}</strong></td><td>${grams(x.edible)}</td>
+    <td>${grams(x.inedible)}</td><td><strong>${grams(x.total)}</strong></td>
+    <td>${sourceHTML(s)}</td><td><button class="btn" onclick="openDetail(${schools.indexOf(s)})">Detail</button></td></tr>`;
+  }).join("");
+};
+
+window.renderSchoolCards=function() {
+  const keyword=(document.getElementById("schoolSearch").value||"").toLowerCase();
+  const filtered=schools.filter(s=>s.name.toLowerCase().includes(keyword));
+  document.getElementById("schoolCards").innerHTML=filtered.map(s=>{
+    const x=todaySummary(s);
+    return `<div class="school-card"><h3>🏫 ${s.name}</h3>
+      <p>Sumber data: ${sourceHTML(s)}</p><div class="school-total">${grams(x.total)}</div>
+      <p>Edible: ${grams(x.edible)}</p><p>Inedible: ${grams(x.inedible)}</p>
+      <button class="btn" onclick="openDetail(${schools.indexOf(s)})">Buka Detail →</button></div>`;
+  }).join("");
+};
+
+window.openDetail=function(index) {
+  selectedSchoolIndex=index;
+  const s=schools[index];
+  navigate("schoolDetail");
+  const x=todaySummary(s);
+  document.getElementById("detailName").textContent=s.name;
+  document.getElementById("detailBadge").innerHTML=sourceHTML(s);
+  document.getElementById("detailTotal").textContent=grams(x.total);
+  document.getElementById("detailEdible").textContent=grams(x.edible);
+  document.getElementById("detailInedible").textContent=grams(x.inedible);
+
+  document.getElementById("detailInfo").innerHTML=`
+    <p class="muted" style="line-height:1.9">
+      <strong>${s.name}</strong><br>
+      Sumber: ${s.source==="ASLI"?"Firebase Realtime Database":s.source==="SIMULASI"?"Data simulasi":"Menunggu koneksi"}<br>
+      Jumlah catatan: ${s.history.length}<br>
+      Satuan: gram (g)<br><br>
+      ${s.source==="ASLI"?"Data dibaca langsung dari /history Firebase.":"Data simulasi untuk kebutuhan demonstrasi."}
+    </p>`;
+
+  const days=[];
+  for(let n=6;n>=0;n--) {
+    const d=new Date();d.setDate(d.getDate()-n);
+    const key=dateKey(d);
+    const rows=s.history.filter(r=>r.date===key);
+    days.push({label:String(d.getDate()),...sumRows(rows)});
+  }
+  const max=Math.max(1,...days.map(d=>d.total));
+  document.getElementById("detailChart").innerHTML=days.map(d=>`
+    <div class="chart-column">${createBars(d.edible,d.inedible,max)}<small>${d.label}</small></div>
+  `).join("");
+
+  document.getElementById("detailHistory").innerHTML=s.history.length
+    ? s.history.map(r=>`<tr><td>${r.date}</td><td>${r.time||"-"}</td>
+      <td>${grams(r.edible)}</td><td>${grams(r.inedible)}</td><td><strong>${grams(r.total)}</strong></td></tr>`).join("")
+    : '<tr><td colspan="5">Belum ada riwayat pencatatan.</td></tr>';
+};
+
+function setupReportOptions() {
+  document.getElementById("reportSchool").innerHTML=
+    '<option value="all">Semua sekolah</option>'+
+    schools.map((s,index)=>`<option value="${index}">${s.name}</option>`).join("");
+}
+
+window.renderReport=function() {
+  const period=document.getElementById("reportPeriod").value;
+  const selected=document.getElementById("reportSchool").value;
+  const data=selected==="all"?schools:[schools[Number(selected)]];
+  const results=data.map(s=>{
+    const rows=s.history.filter(r=>inPeriod(parseFirebaseDate(r.date),period));
+    return {school:s,...sumRows(rows)};
+  });
+  const totals=results.reduce((a,x)=>({
+    edible:a.edible+x.edible,inedible:a.inedible+x.inedible,total:a.total+x.total
+  }),{edible:0,inedible:0,total:0});
+
+  document.getElementById("reportEdible").textContent=grams(totals.edible);
+  document.getElementById("reportInedible").textContent=grams(totals.inedible);
+  document.getElementById("reportTotal").textContent=grams(totals.total);
+  document.getElementById("reportTable").innerHTML=results.map(x=>`
+    <tr><td>${x.school.name}</td><td>${grams(x.edible)}</td>
+    <td>${grams(x.inedible)}</td><td><strong>${grams(x.total)}</strong></td>
+    <td>${sourceHTML(x.school)}</td></tr>`).join("");
+};
+
+window.exportReport=function() {
+  const period=document.getElementById("reportPeriod").value;
+  const selected=document.getElementById("reportSchool").value;
+  const data=selected==="all"?schools:[schools[Number(selected)]];
+  const rows=[["Sekolah","Tanggal","Waktu","Edible (g)","Inedible (g)","Total (g)","Sumber"]];
+  data.forEach(s=>{
+    s.history.filter(r=>inPeriod(parseFirebaseDate(r.date),period)).forEach(r=>{
+      rows.push([s.name,r.date,r.time,r.edible,r.inedible,r.total,s.source]);
+    });
+  });
+  const csv="\uFEFF"+rows.map(row=>row.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download="Laporan_SPPG_LOOP.csv";a.click();
+  URL.revokeObjectURL(url);
+};
+
+function renderAll() {
+  setupReportOptions();
+  renderDashboard();
+  renderSchoolCards();
+  renderReport();
+}
+
+renderAll();
+</script>
+</body>
+</html>
