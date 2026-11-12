@@ -578,22 +578,44 @@ function renderDashboardChart() {
 }
 
 function renderLargestWaste() {
-  const candidates=schools.filter(s=>s.source!=="MENUNGGU");
-  const largest=candidates.reduce((a,b)=>total(a)>=total(b)?a:b,null);
-  const el=document.getElementById("largestWaste");
-  if(!largest||total(largest)===0) {
-    el.innerHTML='<p class="muted">Belum ada catatan untuk hari ini.</p>';
+  const candidates = schools.filter(
+    s => s.source !== "MENUNGGU"
+  );
+
+  const largest = candidates.length
+    ? candidates.reduce((a, b) =>
+        total(a) >= total(b) ? a : b
+      )
+    : null;
+
+  const el = document.getElementById("largestWaste");
+
+  if (!largest || total(largest) === 0) {
+    el.innerHTML =
+      '<p class="muted">Belum ada catatan untuk hari ini.</p>';
     return;
   }
-  const sum=todaySummary(largest);
-  el.innerHTML=`<div class="alert-card">
-    <span class="alert-label">PERLU DITINJAU</span>
-    <h2>${largest.name}</h2>
-    <div class="alert-number">${grams(sum.total)}</div>
-    <p>Edible: ${grams(sum.edible)}<br>Inedible: ${grams(sum.inedible)}</p>
-    <p style="margin-top:12px">Jumlah limbah tercatat terbesar hari ini dibandingkan sekolah lain.</p>
-    <button class="btn" style="margin-top:15px" onclick="openDetail(${schools.indexOf(largest)})">Lihat Detail</button>
-  </div>`;
+
+  const sum = todaySummary(largest);
+
+  el.innerHTML = `
+    <div class="alert-card">
+      <span class="alert-label">PERLU DITINJAU</span>
+      <h2>${largest.name}</h2>
+      <div class="alert-number">${grams(sum.total)}</div>
+      <p>
+        Edible: ${grams(sum.edible)}<br>
+        Inedible: ${grams(sum.inedible)}
+      </p>
+      <p style="margin-top:12px">
+        Jumlah limbah tercatat terbesar hari ini dibandingkan sekolah lain.
+      </p>
+      <button class="btn" style="margin-top:15px"
+        onclick="openDetail(${schools.indexOf(largest)})">
+        Lihat Detail
+      </button>
+    </div>
+  `;
 }
 
 window.renderDashboardTable=function() {
