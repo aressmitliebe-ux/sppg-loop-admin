@@ -217,7 +217,7 @@ button {cursor:pointer}
     <div class="table-card">
       <div class="table-heading">
         <h3>Data Seluruh Sekolah</h3>
-        <input class="search" id="dashboardSearch" placeholder="Cari sekolah..." oninput="renderDashboardTable()">
+        <input class="search" id="dashboardSearch" placeholder="Cari sekolah..." oninput="window.renderDashboardTable()">
       </div>
       <div class="table-wrap">
         <table>
@@ -564,7 +564,7 @@ function renderDashboard() {
   document.getElementById("totalWaste").textContent=grams(e+i);
   renderDashboardChart();
   renderLargestWaste();
-  renderDashboardTable();
+  window.renderDashboardTable();
 }
 
 function renderDashboardChart() {
